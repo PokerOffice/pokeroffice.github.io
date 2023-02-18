@@ -75,19 +75,15 @@
     }
 
     function reverseConversion(input) {
-        let result = "";
-        let data = input.split(',');
-        for (let i = 0; i < data.length; i++) {
-            let item = data[i];
-            let weight = item.match(/\[(\d+)\]/)[1];
-            item = item.replace(/\[\d+\]/, "");
-            let values = item.split("");
-            for (let j = 0; j < values.length; j++) {
-                result += values[j] + ":" + weight/100 + ",";
-            }
-        }
-        return result.slice(0, -1);
-    }
+  const pattern = /\[(\d+(\.\d+)?%?)\]([^[]*)\[\/.*?\]/g;
+  return input.replace(pattern, (match, weight, _, tokens) => {
+    weight = Number(weight) / 100;
+    tokens = tokens.split(',');
+    return tokens.map((token) => `${token}:${weight}`).join(',');
+  });
+}
+
+
 
 
 
