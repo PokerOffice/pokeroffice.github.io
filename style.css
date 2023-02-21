@@ -1,0 +1,24 @@
+body {
+  background-color: #1c1c1c;
+  color: #f2f2f2;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+}
+h1, h2 {
+  color: #ffffff;
+  text-align: center;
+}
+.container {
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #333333;
+  border-radius: 10px;
+  width: 80%;
+  max-width: 600px;
+}
+form {
+  margin: 20px auto;
+  text-align: center;
+  width: 80%;
+  max-width: 600px;
+}

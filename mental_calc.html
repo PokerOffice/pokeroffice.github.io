@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fraction to Percentage Quiz</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    input[type="text"] {
+      background-color: #1c1c1c;
+      color: #f2f2f2;
+      border: none;
+      border-bottom: 1px solid #f2f2f2;
+      font-size: 24px;
+      margin: 10px;
+      padding: 10px;
+      text-align: center;
+      width: 60%;
+    }
+    input[type="submit"] {
+      background-color: #4CAF50;
+      border: none;
+      border-radius: 5px;
+      color: #ffffff;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 10px;
+      padding: 10px;
+      width: 30%;
+    }
+    .result {
+      color: #ffffff;
+      font-size: 24px;
+      margin: 20px auto;
+      text-align: center;
+      width: 80%;
+      max-width: 600px;
+    }
+    .question {
+      color: #ffffff;
+      font-size: 24px;
+      margin: 20px auto;
+      text-align: center;
+      width: 80%;
+      max-width: 600px;
+    }
+    .level-links {
+      text-align: center;
+    }
+
+    .level-links a {
+      color: #5ff;
+      margin: 0 10px;
+    }
+
+    .level-links a.disabled {
+      color: #ddd;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Fraction to Percentage Quiz</h1>
+    <div class="level-links">
+      <a href="?level=1" id="link_level1">Easy</a>
+      <a href="?level=2" id="link_level2">Medium</a>
+      <a href="?level=3" id="link_level3">Hard</a>
+    </div>
+    <h2>Enter the percentage equivalent of the following fraction:</h2>
+    <form autocomplete="off" onsubmit="event.preventDefault(); checkAnswer();">
+      <div class="question" id="question"></div>
+      <input type="text" id="answer" placeholder="e.g. 75">
+      <input type="submit" value="Check Answer">
+    </form>
+    <div class="result" id="result"></div>
+  </div>
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const level = parseInt(urlParams.get('level')) || 1;
+
+    const disabledLink = document.getElementById('link_level' + level);
+    disabledLink.classList.add('disabled');
+    disabledLink.removeAttribute('href');
+
+    function generateFraction() {
+      // Generate random fractions p/q, with 0 < p < q < C,
+      // with C depending on quiz level
+      let p, q;
+      switch (level) {
+        case 2:
+          p = getRandomInt(1, 19);
+          q = getRandomInt(p + 1, 20);
+          break;
+        case 3:
+          p = getRandomInt(1, 500);
+          q = getRandomInt(p + 1, 900);
+          p /= 10;
+          q /= 10;
+          break;
+        default:
+          p = getRandomInt(1, 9);
+          q = getRandomInt(p + 1, 10);
+          break;
+      }
+      return { numerator: p, denominator: q };
+    }
+
+    function getRandomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function getPercentage(fraction) {
+      // Get the percentage equivalent of a fraction
+      return (fraction.numerator / fraction.denominator) * 100;
+    }
+
+    function parseFraction(fractionString) {
+      var parts = fractionString.split("/");
+      return {
+        numerator: parseInt(parts[0]),
+        denominator: parseInt(parts[1])
+      };
+    }
+
+    function displayQuestion() {
+      // Generate a random fraction
+      var fraction = generateFraction();
+      var fractionString = fraction.numerator + "/" + fraction.denominator;
+
+      // Display the fraction and clear the answer field
+      document.getElementById("question").textContent = fractionString;
+      document.getElementById("answer").value = "";
+
+      // Return the percentage equivalent of the fraction
+      return getPercentage(fraction);
+    }
+
+    function answerMessage(answer, correct) {
+      // Generate a correction message according to answer accuracy.
+      const accuracy = Math.abs(answer - correct);
+      const correctAnswer = correct.toFixed(2);
+      if (accuracy <= 0.001) {
+        return "Correct!";
+      }
+      if (accuracy <= 1) {
+        return "Good! The correct answer is " + correctAnswer + "%";
+      }
+      if (accuracy <= 2) {
+        return "Close guess. The correct answer is " + correctAnswer + "%";
+      }
+      return "Incorrect. The correct answer is " + correctAnswer + "%";
+    }
+
+    function checkAnswer() {
+      // Check if the user's answer is correct
+      var answer = document.getElementById("answer").value;
+      if (answer == "") {
+        document.getElementById("result").innerHTML = "Please enter an answer.";
+        return;
+      }
+      answer = parseFloat(answer);
+      if (isNaN(answer)) {
+        document.getElementById("result").innerHTML = "Invalid answer. Please enter a number.";
+        return;
+      }
+      var previousQuestion = document.getElementById("question").textContent;
+      var percentage = getPercentage(parseFraction(previousQuestion));
+      document.getElementById("result").innerHTML = answerMessage(answer, percentage);
+
+      // Generate a new question
+      displayQuestion();
+    }
+
+    // Display the first question when the page loads
+    displayQuestion();
+  </script>
+</body>
+</html>
