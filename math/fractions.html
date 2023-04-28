@@ -5,6 +5,10 @@
   <title>PokerOffice / Fractions</title>
   <link rel="stylesheet" href="/style.css">
   <style>
+    img {
+      vertical-align: middle;
+    }
+
     input[type="text"] {
       background-color: #1c1c1c;
       color: #f2f2f2;
@@ -27,6 +31,7 @@
       padding: 10px;
       width: 30%;
     }
+
     .result {
       color: #ffffff;
       font-size: 24px;
@@ -144,19 +149,28 @@
       return getPercentage(fraction);
     }
 
+    function generateMessage(imageLabel, text, correct) {
+      let message = `<img src="/Icons/chess/${imageLabel}.svg" width="32"/> ` + text
+      if (correct != null) {message += ` The correct answer is ${correct}%`;}
+      return message;
+    }
+
     function answerMessage(answer, correct) {
       // Generate a correction message according to answer accuracy.
       const accuracy = Math.abs(answer - correct);
       const correctAnswer = correct.toFixed(2);
       if (accuracy <= 0.001) {
-        return "Correct!";
+        return generateMessage("best", "Correct !", null);
       }
       if (accuracy <= 1) {
+        return generateMessage("correct", "Good !", correctAnswer);
         return "Good! The correct answer is " + correctAnswer + "%";
       }
       if (accuracy <= 2) {
+        return generateMessage("inaccuracy", "Close guess.", correctAnswer);
         return "Close guess. The correct answer is " + correctAnswer + "%";
       }
+        return generateMessage("incorrect", "Incorrect.", correctAnswer);
       return "Incorrect. The correct answer is " + correctAnswer + "%";
     }
 
@@ -178,7 +192,7 @@
 
       document.getElementById("result").innerHTML = (
         `<p><strong>Your answer:</strong> ${fraction.display} = ${answer}%</p>`
-        + answerMessage(answer, percentage)
+        + "<p>" + answerMessage(answer, percentage) + "</p>"
       );
 
       // Generate a new question
