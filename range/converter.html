@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>PokerOffice / Range converter</title>
+	<link rel="stylesheet" href="/style.css">
+	<style>
+		/* Add some basic styling */
+		h1 {
+			text-align: center;
+			margin-top: 50px;
+		}
+
+		.container {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			margin-top: 50px;
+		}
+
+		input[type="text"],
+		textarea {
+			font-size: 20px;
+			padding: 10px;
+			margin: 10px;
+			width: 500px;
+			height: 50px;
+			text-align: center;
+		}
+
+		button {
+			padding: 10px 20px;
+			font-size: 20px;
+			margin: 10px;
+		}
+	</style>
+</head>
+<body>
+	<h1>Flopzilla/PIO converter</h1>
+	<div>
+		<input type="text" id="input-field" placeholder="Enter range to convert">
+		<button id="encode-button">PIO → Flopzilla</button>
+		<button id="decode-button">Flopzilla → PIO</button>
+		<textarea id="output-field" placeholder="Output will appear here" disabled></textarea>
+	</div>
+	<script>
+		const inputField = document.getElementById("input-field");
+		const encodeButton = document.getElementById("encode-button");
+		const decodeButton = document.getElementById("decode-button");
+		const outputField = document.getElementById("output-field");
+
+		function convert(input) {
+				const data = input.split(',');
+				const result = {
+						100: [],
+				};
+
+				data.forEach((item) => {
+						const items = item.split(':');
+						if (items.length === 2) {
+							let weight = items[1] * 100
+							if (!(weight in result)) result[weight] = [];
+							result[weight].push(items[0]);
+						} else {
+							result[100].push(items[0]);
+						}
+				});
+
+				let output = '';
+				for (const key in result) {
+						output += '[' + key + ']' + result[key].join(',') + '[/' + key + '],';
+				}
+
+				return output.slice(0, -1);
+		}
+
+		function reverseConversion(input) {
+	const pattern = /\[(\d+(\.\d+)?%?)\]([^[]*)\[\/.*?\]/g;
+	return input.replace(pattern, (match, weight, _, tokens) => {
+		weight = Number(weight) / 100;
+		tokens = tokens.split(',');
+		return tokens.map((token) => `${token}:${weight}`).join(',');
+	});
+}
+
+
+
+
+
+		// Function to encode text to Morse code
+		const encode = () => {
+			let input = inputField.value;
+			outputField.value = convert(input);
+		};
+
+		// Function to decode Morse code to text
+		const decode = () => {
+			let input = inputField.value.trim();
+			outputField.value = reverseConversion(input);
+		};
+
+		// Add event listeners to the buttons
+		encodeButton.addEventListener("click", encode);
+		decodeButton.addEventListener("click", decode);
+	</script>
+</body>
+</html>

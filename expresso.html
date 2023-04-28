@@ -1,5 +1,7 @@
-<html>
+<html lang="en">
   <head>
+    <title>PokerOffice / Spins</title>
+    <link rel="stylesheet" type="text/css" href="/style.css">
     <style>
       .slider input[type="range"] {
         width: 60%;
@@ -9,7 +11,11 @@
     </style>
   </head>
   <body>
+    <h1>Spin & Go simulator</h1>
+
     <script>
+      const STACK = 500;
+      const RAKE = 0.07;
     </script>
     <div class="slider">
       0 <input type="range" id="evSlider" value="0"> 100
@@ -19,8 +25,6 @@
     <p>ROI: <span id="value3"></span>%</p>
 
     <script>
-      const STACK = 500;
-      const RAKE = 0.07;
       const evSlider = document.getElementById("evSlider");
       evSlider.min = -STACK;
       evSlider.max = 2 * STACK;

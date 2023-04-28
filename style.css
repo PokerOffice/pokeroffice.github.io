@@ -6,7 +6,6 @@ body {
 }
 h1, h2 {
   color: #ffffff;
-  text-align: center;
 }
 .container {
   margin: 20px auto;
@@ -21,4 +20,16 @@ form {
   text-align: center;
   width: 80%;
   max-width: 600px;
+}
+
+a {
+  color: #5ff;
+}
+
+a:hover {
+  color: orange;
+}
+
+a:active {
+  color: yellow;
 }
