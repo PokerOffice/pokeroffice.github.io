@@ -48,7 +48,12 @@
 	<div class="form-container">
 		<div class="input-container">
 			<h2>Flopzilla</h2>
-			<input type="text" id="input-field" placeholder="Enter range to convert">
+			<textarea
+				rows="0"
+				type="text" id="input-field"
+				placeholder="Enter range to convert
+				Example:
+				QQ+, AK, [50]AQ, JJ[/50]"></textarea>
 		</div>
 		<div class="buttons">
 			<button id="encode-button">Encode →</button>
@@ -67,19 +72,19 @@
 
 		function convert(input) {
 				const data = input.split(',');
-				const result = {
-						100: [],
-				};
+				const result = {};
 
 				data.forEach((item) => {
+						if (!item) return;
+
 						const items = item.split(':');
+						let weight = 100;
 						if (items.length === 2) {
-							let weight = items[1] * 100
-							if (!(weight in result)) result[weight] = [];
-							result[weight].push(items[0]);
-						} else {
-							result[100].push(items[0]);
+							weight = items[1] * 100
 						}
+
+						if (!(weight in result)) result[weight] = [];
+						result[weight].push(items[0]);
 				});
 
 				let output = '';
