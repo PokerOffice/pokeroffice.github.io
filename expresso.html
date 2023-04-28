@@ -3,9 +3,12 @@
     <title>PokerOffice / Spins</title>
     <link rel="stylesheet" type="text/css" href="/style.css">
     <style>
+      body {
+        font-size: 24px;
+      }
       .slider input[type="range"] {
-        width: 60%;
-        height: 20px;
+        width: 50%;
+        max-width: 400px;
         background-color: lightgray;
       }
     </style>
@@ -13,18 +16,26 @@
   <body>
     <h1>Spin & Go simulator</h1>
 
-    <script>
-      const STACK = 500;
-      const RAKE = 0.07;
-    </script>
+    <p><strong>Stack:</strong> <span id="stack"></span></p>
+    <p><strong>Rake:</strong> <span id="rake"></span>%</p>
+
     <div class="slider">
       0 <input type="range" id="evSlider" value="0"> 100
     </div>
-    <p>EVchips/game: <span id="value1"></span></p>
-    <p>Win: <span id="value2"></span>%</p>
-    <p>ROI: <span id="value3"></span>%</p>
+
+    <p><strong>EVchips/game:</strong> <span id="value1"></span></p>
+    <p><strong>Win:</strong> <span id="value2"></span>%</p>
+    <p><strong>ROI:</strong> <span id="value3"></span>%</p>
 
     <script>
+      function round(x, decimals=2) {return Number(x.toFixed(decimals))}
+
+      const STACK = 500;
+      const RAKE = 0.07;
+
+      document.getElementById("stack").innerText = STACK;
+      document.getElementById("rake").innerText = round(RAKE * 100);
+
       const evSlider = document.getElementById("evSlider");
       evSlider.min = -STACK;
       evSlider.max = 2 * STACK;
@@ -32,8 +43,6 @@
       const slider1Value = document.getElementById("value1");
       const slider2Value = document.getElementById("value2");
       const slider3Value = document.getElementById("value3");
-
-      function round(x) {return Number(x.toFixed(2))}
 
       function updateValues() {
         reference = parseFloat(evSlider.value);
