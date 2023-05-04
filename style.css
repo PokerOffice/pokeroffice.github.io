@@ -9,8 +9,9 @@ h1, h2 {
   color: #ffffff;
 }
 
-strong {
+strong, .strong {
   color: orange;
+  font-weight: bold;
 }
 
 .container {
@@ -20,6 +21,10 @@ strong {
   border-radius: 20px;
   max-width: 700px;
   text-align: center;
+}
+.container table {
+  margin-left: auto;
+  margin-right: auto;
 }
 form {
   margin: 20px auto;
@@ -42,4 +47,9 @@ a:active {
 
 img {
   vertical-align: middle;
+}
+
+table.padded th,
+table.padded td {
+  padding: 15px;
 }

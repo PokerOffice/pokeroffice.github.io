@@ -29,6 +29,10 @@ input[type="submit"] {
   width: 80%;
   max-width: 600px;
 }
+.question-em {
+  font-size: 120%;
+  color: yellow;
+}
 
 .level-links {
   text-align: center;

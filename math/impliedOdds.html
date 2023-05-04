@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PokerOffice / Implied Odds</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="quiz.css">
+</head>
+
+<body>
+  <div style="text-align: center;">
+    <h1>Implied Odds Quiz</h1>
+    <a href="/index.html">Back to menu</a>
+
+    <div class="container">
+      <h2>Pot: <span id="potValue"></span></h2>
+      <p>
+        <span class="strongIf-question-oppBet">Your opponent bets <span id="valueOppBet"></span>.</span>
+        <span class="strongIf-question-equity">You have <span id="valueEquity"></span>% equity,</span><br>
+        and if you call, you expect to win an additional
+        <span class="strongIf-question-implied"><span id="valueImplied"></span>% pot bet</span>
+        when you hit.
+      </p>
+      <p id="question"></p>
+      <form autocomplete="off" onsubmit="event.preventDefault(); checkAnswer();">
+        <input type="text" id="answer" placeholder="e.g. 75">
+        <input type="submit" value="Check Answer">
+      </form>
+      <div class="result" id="resultError" hidden>Invalid answer. Please input a number.</div>
+      <div id="resultSuccess" hidden>
+        <h3>Previous question:</h3>
+        <table border="1" class="padded">
+          <tr><th>Pot</th><th>Opponent bet</th><th>Equity</th><th>EQR bonus</th></tr>
+          <tr>
+            <td><span id="resultPot"></span></td>
+            <td class="strongIf-result-oppBet"><span id="resultOppBet"></span></td>
+            <td class="strongIf-result-equity"><span id="resultEquity"></span>%</td>
+            <td class="strongIf-result-implied"><span id="resultImplied"></span>%</td>
+          </tr>
+        </table>
+        <p class="result"><strong>Your answer:</strong> <span id="userAnswer"></span></p>
+        <p class="result" id="answerMessage"></p>
+      </div>
+    </div>
+  </div>
+
+  <script src="math.js"></script>
+  <script>
+    const placeholder = '<img src="/Icons/chess/mistake.svg" width="20"/>';
+    var problemData = [];
+
+    function displayQuestion() {
+      // Reset styles from previous questions
+      document.querySelectorAll("[class^='strongIf-question-']").forEach((element) => {
+        element.classList.remove('strong');
+      });
+
+      // Generate random values for pot, opponent bet, equity, and implied odds
+      var pot = Math.floor(Math.random() * 400) / 10 + 5; // Random pot size between 5 and 45
+      var opponentBet = Math.floor(10 * pot * (Math.random() + 0.2)) / 10; // Random opponent bet size between 20% and 120% pot
+      var equity = Math.floor(Math.random() * 250 + 30) / 10; // Random equity between 3 and 28
+      var impliedOdds = Math.floor(Math.random() ** 1.5 * 176) + 25; // Random implied odds between 25% and 200%
+
+      var questionText = "";
+
+      // Choose a random value to quiz user
+      switch (Math.floor(Math.random() * 3)) {
+        case 0:
+          // Hide opponent bet
+          opponentBet = null;
+          questionText = `
+            <b class="question-em">What is the maximum bet size that you can profitably call ?</b><br>
+            <i>(answer "100" if the real answer would be higher)</i>
+          `;
+          document.querySelectorAll(".strongIf-question-oppBet").forEach((element) => {
+            element.classList.add('strong');
+          });
+          break;
+        case 1:
+          // Hide equity
+          equity = null;
+          questionText = `<b class="question-em">What is your minimum equity (in %) to profitably call ?</b>`;
+          document.querySelectorAll(".strongIf-question-equity").forEach((element) => {
+            element.classList.add('strong');
+          });
+          break;
+        case 2:
+          // Hide implied odds
+          impliedOdds = null;
+          questionText = `
+            <b class="question-em">What additional pot % do you need to win to profitably call ?</b><br>
+            <i>(answer "0" if the implied odds are not needed)</i>
+          `;
+          document.querySelectorAll(".strongIf-question-implied").forEach((element) => {
+            element.classList.add('strong');
+          });
+          break;
+      }
+
+      // Display the question and clear the answer field
+      problemData = [pot, opponentBet, equity, impliedOdds];
+      document.getElementById("potValue").innerHTML = pot;
+      document.getElementById("valueOppBet").innerHTML = opponentBet ?? placeholder;
+      document.getElementById("valueEquity").innerHTML = equity ?? placeholder;
+      document.getElementById("valueImplied").innerHTML = impliedOdds ?? placeholder;
+      document.getElementById("answer").value = "";
+      document.getElementById("question").innerHTML = questionText;
+    }
+
+    function checkAnswer() {
+      // Check if the user's answer is correct
+      var answer = document.getElementById("answer").value;
+      answer = parseFloat(answer);
+      if (isNaN(answer)) {
+        document.getElementById("resultError").removeAttribute('hidden');
+        document.getElementById("resultSuccess").setAttribute('hidden', '');
+        return;
+      }
+
+      document.getElementById("resultError").setAttribute('hidden', '');
+      document.getElementById("resultSuccess").removeAttribute('hidden');
+
+      var [pot, opponentBet, equity, impliedOdds] = problemData;
+      var correctAnswer = 0;
+      if (opponentBet == null) {
+        let trueEquity = equity * (100 + impliedOdds) / 10000;
+        if (trueEquity >= 0.5)
+          correctAnswer = 100;
+        else correctAnswer = Math.min(100, pot * trueEquity / (1 - 2 * trueEquity));
+      }
+      else if (equity == null)
+        correctAnswer = opponentBet / (pot + 2*opponentBet) / (impliedOdds/100 + 1) * 100;
+      else 
+        correctAnswer = Math.max(0, 10000 * opponentBet / ((pot + 2* opponentBet) * equity) - 100);
+
+      // Reset styles from previous questions
+      document.querySelectorAll("[class^='strongIf-result-']").forEach((element) => {
+        element.classList.remove('strong');
+      });
+      document.getElementById("resultPot").innerHTML = pot;
+      document.getElementById("resultOppBet").innerHTML = opponentBet ?? placeholder;
+      document.getElementById("resultEquity").innerHTML = equity ?? placeholder;
+      document.getElementById("resultImplied").innerHTML = impliedOdds ?? placeholder;
+
+      document.getElementById("userAnswer").innerHTML = answer;
+      document.getElementById("answerMessage").innerHTML = answerMessage(answer, correctAnswer);
+
+      displayQuestion();
+    }
+
+    // Display the first question when the page loads
+    displayQuestion();
+    document.getElementById("answer").focus();
+  </script>
+</body>
+</html>
