@@ -9,7 +9,7 @@
 
 <body>
   <div id="output" 
-       style="display: inline-block;
+       style="
         font-family: monospace;
         font-size: 30px;
         text-align: center;
@@ -17,18 +17,22 @@
         border-radius: 10px; 
         padding: 10px; 
         ">
+        <span id="out-date"></span><br>
+        <span id="out-hour"></span>
   </div>
 
   <script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment-with-locales.min.js'></script>
   <script>
     moment.locale("fr");
-    var output = document.getElementById("output");
+    var outDate = document.getElementById("out-date");
+    var outHour = document.getElementById("out-hour");
     var c;
     setInterval(
         c = function() {
-            text = moment().format('dddd DD MMMM YYYY HH:mm:ss');
+            text = moment().format('dddd DD MMMM YYYY');
             text = text.charAt(0).toUpperCase() + text.slice(1);
-            output.innerText = text;
+            outDate.innerText = text;
+            outHour.innerText = moment().format('HH:mm:ss');;
         }, 1000);
     c();
   </script>
