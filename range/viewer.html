@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 	<meta charset="UTF-8">
 	<title>PokerOffice / Range viewer</title>
@@ -21,8 +22,24 @@
 			color: #fff;
 			padding: 5px;
 		}
+
+		#suitednessTable {
+			width: 70%;
+		}
+
+		#suitednessTable td {
+			text-align: center;
+			font-size: 28px;
+			cursor: pointer;
+			padding: 7px;
+		}
+
+		#suitednessTable td.active {
+			background-color: cyan;
+		}
 	</style>
 </head>
+
 <body>
 	<h1>Strategy editor</h1>
 	<a href="/index.html">Back to menu</a>
@@ -38,8 +55,11 @@
 			<textarea id="weightsInput" rows="5" cols="40" placeholder="Enter weights list"></textarea>
 			<p><button onclick="updateGrid()">Update Grid</button></p>
 
-			<table id="suitednessTable" style="margin-top: 20px;"></table>
+			<hr>
 
+			<p style="margin-bottom: 2px;">Suitedness:</p>
+			<table id="suitednessTable">
+			</table>
 		</div>
 	</div>
 </body>
@@ -87,4 +107,5 @@
 		localStorage.setItem("weightsInput", this.value);
 	});
 </script>
+
 </html>

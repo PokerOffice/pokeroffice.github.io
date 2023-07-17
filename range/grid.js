@@ -1,6 +1,13 @@
 const grid = document.getElementById("grid");
 const RANKS = ["A", "K", "Q", "J", "T", "9", "8", "7", "6", "5", "4", "3", "2"];
 
+const SUITS = [
+	{"raw": "s", "symbol": "&spades;", "color": "black"},
+	{"raw": "h", "symbol": "&hearts;", "color": "red"},
+	{"raw": "d", "symbol": "&diams;", "color": "blue"},
+	{"raw": "c", "symbol": "&clubs;", "color": "darkGreen"},
+];
+
 const ACTIONS = [
 	{ "id": "Raise", "color": "red" },
 	{ "id": "Call", "color": "green" },
@@ -8,7 +15,49 @@ const ACTIONS = [
 ];
 
 var combos = {};
-var suitedness = new Set(["ss", "hh", "dd", "cc"]);
+var suitedness = new Set();
+
+function toggleSuitedness(suitCombination) {
+	const td = document.getElementById("suitCombination-" + suitCombination);
+
+	if (suitedness.has(suitCombination)) {
+		suitedness.delete(suitCombination);
+		td.style.backgroundColor = "white";
+	} else {
+		suitedness.add(suitCombination);
+		td.style.backgroundColor = "cyan";
+	}
+
+	refreshGrid();
+}
+
+function formatSuit(suit) {
+	return `<span style="color: ${suit.color}">${suit.symbol}</span>`
+}
+
+function initSuitedness() {
+	// Build HTML
+	const suitednessTable = document.getElementById("suitednessTable");
+	for (let suit1 of SUITS) {
+		const row = document.createElement("tr");
+		for (let suit2 of SUITS) {
+			const td = document.createElement("td");
+			const suitCombination = suit1.raw + suit2.raw;
+			td.id = "suitCombination-" + suitCombination;
+			td.innerHTML = `${formatSuit(suit1)}${formatSuit(suit2)}`;
+			td.style.backgroundColor = "white";
+			td.style.cursor = "pointer";
+			td.addEventListener("click", function () {
+				toggleSuitedness(suitCombination);
+			});
+			row.appendChild(td);
+		}
+		suitednessTable.appendChild(row);
+	}
+
+	// Init
+	for (let suit of ["ss", "hh", "dd", "cc"]) toggleSuitedness(suit);
+}
 
 function generateCell(name) {
 	let cell = document.createElement("td");
@@ -121,3 +170,4 @@ function refreshGrid() {
 }
 
 refreshGrid();
+initSuitedness();
