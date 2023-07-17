@@ -9,7 +9,7 @@
 			display: flex;
 			width: 55px;
 			height: 55px;
-			background-color: #ccc;
+			background-color: #aaa;
 		}
 
 		.content {
@@ -24,8 +24,44 @@
 	</style>
 </head>
 <body>
+	<div>
+		<textarea id="handsInput" rows="5" cols="40" placeholder="Enter hands list"></textarea>
+		<textarea id="weightsInput" rows="5" cols="40" placeholder="Enter weights list"></textarea>
+		<button onclick="updateGrid()">Update Grid</button>
+	</div>
 	<table id="grid"></table>
 </body>
 
 <script src="grid.js"></script>
+<script>
+	function updateGrid() {
+		const handsInput = document.getElementById("handsInput").value;
+		const weightsInput = document.getElementById("weightsInput").value;
+
+		// Parse hands and weights as arrays
+		const hands = JSON.parse(handsInput);
+		const weights = JSON.parse(weightsInput);
+
+		// Validate the input
+		if (!Array.isArray(hands) || !Array.isArray(weights) || hands.length * ACTIONS.length !== weights.length) {
+			alert("Invalid input. Please enter valid hands and weights lists.");
+			return;
+		}
+
+		// Clear the grid and generate new cells
+		refreshGrid();
+	}
+
+	// Restore the values of textareas from localStorage if available
+	document.getElementById("handsInput").value = localStorage.getItem("handsInput");
+	document.getElementById("weightsInput").value = localStorage.getItem("weightsInput");
+
+	// Save the values of textareas to localStorage on change
+	document.getElementById("handsInput").addEventListener("input", function() {
+		localStorage.setItem("handsInput", this.value);
+	});
+	document.getElementById("weightsInput").addEventListener("input", function() {
+		localStorage.setItem("weightsInput", this.value);
+	});
+</script>
 </html>
