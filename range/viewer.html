@@ -27,14 +27,21 @@
 	<h1>Strategy editor</h1>
 	<a href="/index.html">Back to menu</a>
 
-  <p></p>
+	<div id="gridContainer" style="display: flex; flex-direction: row; gap: 20px; margin-top: 20px;">
+		<div id="gridWrapper">
+			<table id="grid"></table>
+		</div>
+		<div id="userInput">
+			<p style="margin: 10px 0 2px;">Hands:</p>
+			<textarea id="handsInput" rows="5" cols="40" placeholder="Enter hands list"></textarea>
+			<p style="margin: 10px 0 2px;">Weights:</p>
+			<textarea id="weightsInput" rows="5" cols="40" placeholder="Enter weights list"></textarea>
+			<p><button onclick="updateGrid()">Update Grid</button></p>
 
-	<div>
-		<textarea id="handsInput" rows="5" cols="40" placeholder="Enter hands list"></textarea>
-		<textarea id="weightsInput" rows="5" cols="40" placeholder="Enter weights list"></textarea>
-		<button onclick="updateGrid()">Update Grid</button>
+			<table id="suitednessTable" style="margin-top: 20px;"></table>
+
+		</div>
 	</div>
-	<table id="grid"></table>
 </body>
 
 <script src="grid.js"></script>
