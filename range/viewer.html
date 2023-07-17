@@ -48,6 +48,17 @@
 			return;
 		}
 
+		// Update combos constant
+		combos = {};
+		for (let index = 0; index < hands.length; index++) {
+			const combo = hands[index];
+			const cWeights = [];
+			for (let adex = 0; adex < ACTIONS.length; adex++) {
+				cWeights.push(weights[index + adex * hands.length]);
+			}
+			combos[combo] = cWeights;
+		}
+
 		// Clear the grid and generate new cells
 		refreshGrid();
 	}
