@@ -85,6 +85,44 @@ function generateCell(name) {
 	return cell;
 }
 
+
+function toHex(value) {
+    return value.toString(16).padStart(2, '0');
+}
+
+/**
+ *
+ * Get an RGB code of a gradient from dark red -> red -> yellow.
+ *
+ * Input: float between 0 and 1
+ * Output: RGB code as a string
+ *
+ * Examples:
+ * getRed(0); // "#AA0000"
+ * getRed(0.3); // "#DD0000"
+ * getRed(0.5); // "#FF0000"
+ * getRed(0.7); // "#FF6600"
+ * getRed(1); // "#FFFF00"
+ */
+function getRed(value) {
+    if (!(0 <= value && value <= 1)) {
+        throw new Error("Invalid gradient: Value must be between 0 and 1.");
+    }
+
+	var red = 255;
+	var green = 0;
+	var blue = 0;
+
+	if (value < 0.5) {
+		red = Math.round(170 * (value + 1));  // Linear #AA to #FF
+	}
+	else {
+		green = Math.round(510 * (value - 0.5));  // Linear #00 to #FF
+	}
+
+	return `#${toHex(red)}${toHex(green)}${toHex(blue)}`;
+}
+
 /**
  * Convert a combo to its generic token.
  * Use global variable suitedness for the suffix, even for pairs.
