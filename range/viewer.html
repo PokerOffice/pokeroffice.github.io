@@ -56,6 +56,7 @@
 			display: none;
 			background-color: navy;
 			margin-left: 20px;
+			padding: 0.1px 10px;
 		}
 
 	</style>
@@ -74,22 +75,20 @@
 		<!-- User parameters -->
 		<div id="userInput">
 			<p style="margin: 10px 0 2px;">
-			Hands
-
-			<span class="expand-button no-select" onclick="toggleExpand('handsInput')">
-				<img src="/img/help.png" width="20">Syntax
-			</span>
-		</p>
+				Actions and range
+				<span class="expand-button no-select" onclick="toggleExpand('handsInput')">
+					<img src="/img/help.png" width="20">Syntax
+				</span>
+			</p>
 			<div class="expandable-box">
 				
 				<div id="handsInput" class="default-input">
-					<p>Default input:</p>
-					<p>AA, KK, AKs, 99</p>
+					<p>3 lines of <i>Actions</i>, <i>Hands</i>, <i>Weights</i></p>
+					<p>Example: Cbet strategy SB vs BB</p>
+					<object data="./sampleInput.txt"></object>
 				</div>
 			</div>
-			<textarea id="handsInput" rows="5" cols="40" placeholder="Enter hands list"></textarea>
-			<p style="margin: 10px 0 2px;">Weights:</p>
-			<textarea id="weightsInput" rows="5" cols="40" placeholder="Enter weights list"></textarea>
+			<textarea id="inputArea" rows="4" cols="40" placeholder="Enter input"></textarea>
 			<p><button onclick="updateGrid()">Update Grid</button></p>
 
 			<hr>
@@ -115,20 +114,35 @@
 	}
 
 	function updateGrid() {
-		const handsInput = document.getElementById("handsInput").value;
-		const weightsInput = document.getElementById("weightsInput").value;
+		// Parse lines
+		const lines = document.getElementById("inputArea").value.split('\n');
+		if (lines.length !== 3) {
+			alert("Invalid input. Please enter exactly three lines of JSON.");
+			return;
+		}
 
 		// Parse hands and weights as arrays
-		const hands = JSON.parse(handsInput);
-		const weights = JSON.parse(weightsInput);
+		let actions, hands, weights;
+		try {
+			actions = parseActions(JSON.parse(lines[0]));
+			hands = JSON.parse(lines[1]);
+			weights = JSON.parse(lines[2]);
+		} catch (error) {
+			alert(
+				"Invalid input. Please enter 3 valid JSON lines.\n\n"
+				+ "Error detail:\n" + error
+				);
+			return;
+		}
 
 		// Validate the input
-		if (!Array.isArray(hands) || !Array.isArray(weights) || hands.length * ACTIONS.length !== weights.length) {
+		if (!Array.isArray(hands) || !Array.isArray(weights) || hands.length * actions.length !== weights.length) {
 			alert("Invalid input. Please enter valid hands and weights lists.");
 			return;
 		}
 
-		// Update combos constant
+		// Update constants
+		ACTIONS = actions;
 		combos = {};
 		for (let index = 0; index < hands.length; index++) {
 			const combo = hands[index];
@@ -144,16 +158,11 @@
 	}
 
 	// Restore the values of textareas from localStorage if available
-	document.getElementById("handsInput").value = localStorage.getItem("handsInput");
-	document.getElementById("weightsInput").value = localStorage.getItem("weightsInput");
+	document.getElementById("inputArea").value = localStorage.getItem("inputArea");
 
 	// Save the values of textareas to localStorage on change
-	document.getElementById("handsInput").addEventListener("input", function() {
-		localStorage.setItem("handsInput", this.value);
-	});
-	document.getElementById("weightsInput").addEventListener("input", function() {
-		localStorage.setItem("weightsInput", this.value);
+	document.getElementById("inputArea").addEventListener("input", function() {
+		localStorage.setItem("inputArea", this.value);
 	});
 </script>
-
 </html>

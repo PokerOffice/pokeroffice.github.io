@@ -8,12 +8,7 @@ const SUITS = [
 	{"raw": "c", "symbol": "&clubs;", "color": "darkGreen"},
 ];
 
-const ACTIONS = [
-	{ "id": "Raise", "color": "red" },
-	{ "id": "Call", "color": "green" },
-	{ "id": "Fold", "color": "blue" },
-];
-
+var ACTIONS = [];
 var combos = {};
 var suitedness = new Set();
 
@@ -121,6 +116,30 @@ function getRed(value) {
 	}
 
 	return `#${toHex(red)}${toHex(green)}${toHex(blue)}`;
+}
+
+function parseActions(raws) {
+    const nbBets = raws.filter(action => action.startsWith("Bet(")).length;
+    let counterBets = nbBets;
+    const actions = [];
+
+    for (let action of raws) {
+        // Get color
+        let color = "gray";
+        if (["Check", "Call"].includes(action)) {
+            color = "green";
+        } else if (action.startsWith("AllIn(")) {
+            color = "purple";
+        } else if (action.startsWith("Bet(")) {
+            counterBets--;
+            color = getRed(counterBets / nbBets);
+        }
+
+        // Push action
+        actions.push({ "id": action, "color": color });
+    }
+
+    return actions;
 }
 
 /**
