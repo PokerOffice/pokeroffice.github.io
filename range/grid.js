@@ -124,7 +124,7 @@ function parseActions(raws) {
 	const actions = [];
 
 	for (let action of raws) {
-        // Get color
+		// Get color
 		let color = "gray";
 		if (["Check", "Call"].includes(action)) {
 			color = "green";
@@ -135,12 +135,19 @@ function parseActions(raws) {
 			color = getRed(counterBets / nbBets);
 		}
 
-        // Push action
+		// Push action
 		actions.push({ "id": action, "color": color });
 	}
 
 	return actions;
 }
+
+function formatBoard(raw) {
+	return raw.split(',')
+		.map(card => `<span class="card-${card[1]}">${card}</span>`)
+		.join(' ');
+}
+
 
 /**
  * Convert a combo to its generic token.
@@ -229,20 +236,20 @@ function refreshGrid() {
 function updateGrid() {
 	// Parse lines
 	const lines = document.getElementById("inputArea").value.split('\n');
-	if (lines.length !== 3) {
-		alert("Invalid input. Please enter exactly three lines of JSON.");
+	if (lines.length !== 4) {
+		alert("Invalid input. Please enter exactly 4 lines of JSON.");
 		return;
 	}
 
 	// Parse hands and weights as arrays
-	let actions, hands, weights;
+	let board, actions, hands, weights;
 	try {
-		actions = parseActions(JSON.parse(lines[0]));
-		hands = JSON.parse(lines[1]);
-		weights = JSON.parse(lines[2]);
+		[board, actions, hands, weights] = lines.map(JSON.parse);
+		board = formatBoard(board);
+		actions = parseActions(actions);
 	} catch (error) {
 		alert(
-			"Invalid input. Please enter 3 valid JSON lines.\n\n"
+			"Invalid input. Please enter 4 valid JSON lines.\n\n"
 			+ "Error detail:\n" + error
 			);
 		return;
@@ -254,7 +261,8 @@ function updateGrid() {
 		return;
 	}
 
-	// Update constants
+	// Update game variables
+	document.getElementById("titleBoard").innerHTML = ' - ' + board;
 	ACTIONS = actions;
 	combos = {};
 	for (let index = 0; index < hands.length; index++) {

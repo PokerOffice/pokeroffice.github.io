@@ -50,3 +50,12 @@
 	margin-left: 20px;
 	padding: 0.1px 10px;
 }
+
+/* Cards */
+.card-s, .card-h, .card-d, .card-c {
+	font-family: "Comic Sans MS";
+}
+.card-s {color: lightgray}
+.card-h {color: red}
+.card-d {color: dodgerblue;}
+.card-c {color: forestgreen;}
