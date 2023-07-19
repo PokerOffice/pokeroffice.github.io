@@ -42,6 +42,22 @@
 		#suitednessTable td.active {
 			background-color: cyan;
 		}
+
+		.expandable-box {
+			position: relative;
+		}
+
+		.expand-button {
+			cursor: pointer;
+			font-style: italic;
+		}
+
+		.default-input {
+			display: none;
+			background-color: navy;
+			margin-left: 20px;
+		}
+
 	</style>
 </head>
 
@@ -50,11 +66,21 @@
 	<a href="/index.html">Back to menu</a>
 
 	<div id="gridContainer" style="display: flex; flex-direction: row; gap: 20px; margin-top: 20px;">
+		<!-- Holes matrix -->
 		<div id="gridWrapper">
 			<table id="grid"></table>
 		</div>
+
+		<!-- User parameters -->
 		<div id="userInput">
 			<p style="margin: 10px 0 2px;">Hands:</p>
+			<div class="expandable-box">
+				<div class="expand-button" onclick="toggleExpand('handsInput')">[?] How to input</div>
+				<div id="handsInput" class="default-input">
+					<p>Default input:</p>
+					<p>AA, KK, AKs, 99</p>
+				</div>
+			</div>
 			<textarea id="handsInput" rows="5" cols="40" placeholder="Enter hands list"></textarea>
 			<p style="margin: 10px 0 2px;">Weights:</p>
 			<textarea id="weightsInput" rows="5" cols="40" placeholder="Enter weights list"></textarea>
@@ -71,6 +97,17 @@
 
 <script src="grid.js"></script>
 <script>
+	function toggleExpand(divId) {
+		const elem = document.getElementById(divId);
+		const style = getComputedStyle(elem);
+
+		if (style.display === "block") {
+			elem.style.display = "none";
+		} else {
+			elem.style.display = "block";
+		}
+	}
+
 	function updateGrid() {
 		const handsInput = document.getElementById("handsInput").value;
 		const weightsInput = document.getElementById("weightsInput").value;
