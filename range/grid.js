@@ -82,7 +82,7 @@ function generateCell(name) {
 
 
 function toHex(value) {
-    return value.toString(16).padStart(2, '0');
+	return value.toString(16).padStart(2, '0');
 }
 
 /**
@@ -100,9 +100,9 @@ function toHex(value) {
  * getRed(1); // "#FFFF00"
  */
 function getRed(value) {
-    if (!(0 <= value && value <= 1)) {
-        throw new Error("Invalid gradient: Value must be between 0 and 1.");
-    }
+	if (!(0 <= value && value <= 1)) {
+		throw new Error("Invalid gradient: Value must be between 0 and 1.");
+	}
 
 	var red = 255;
 	var green = 0;
@@ -119,27 +119,27 @@ function getRed(value) {
 }
 
 function parseActions(raws) {
-    const nbBets = raws.filter(action => action.startsWith("Bet(")).length;
-    let counterBets = nbBets;
-    const actions = [];
+	const nbBets = raws.filter(action => action.startsWith("Bet(")).length;
+	let counterBets = nbBets;
+	const actions = [];
 
-    for (let action of raws) {
+	for (let action of raws) {
         // Get color
-        let color = "gray";
-        if (["Check", "Call"].includes(action)) {
-            color = "green";
-        } else if (action.startsWith("AllIn(")) {
-            color = "purple";
-        } else if (action.startsWith("Bet(")) {
-            counterBets--;
-            color = getRed(counterBets / nbBets);
-        }
+		let color = "gray";
+		if (["Check", "Call"].includes(action)) {
+			color = "green";
+		} else if (action.startsWith("AllIn(")) {
+			color = "purple";
+		} else if (action.startsWith("Bet(")) {
+			counterBets--;
+			color = getRed(counterBets / nbBets);
+		}
 
         // Push action
-        actions.push({ "id": action, "color": color });
-    }
+		actions.push({ "id": action, "color": color });
+	}
 
-    return actions;
+	return actions;
 }
 
 /**
@@ -224,6 +224,50 @@ function refreshGrid() {
 	}
 
 	refreshCombos();
+}
+
+function updateGrid() {
+	// Parse lines
+	const lines = document.getElementById("inputArea").value.split('\n');
+	if (lines.length !== 3) {
+		alert("Invalid input. Please enter exactly three lines of JSON.");
+		return;
+	}
+
+	// Parse hands and weights as arrays
+	let actions, hands, weights;
+	try {
+		actions = parseActions(JSON.parse(lines[0]));
+		hands = JSON.parse(lines[1]);
+		weights = JSON.parse(lines[2]);
+	} catch (error) {
+		alert(
+			"Invalid input. Please enter 3 valid JSON lines.\n\n"
+			+ "Error detail:\n" + error
+			);
+		return;
+	}
+
+	// Validate the input
+	if (!Array.isArray(hands) || !Array.isArray(weights) || hands.length * actions.length !== weights.length) {
+		alert("Invalid input. Please enter valid hands and weights lists.");
+		return;
+	}
+
+	// Update constants
+	ACTIONS = actions;
+	combos = {};
+	for (let index = 0; index < hands.length; index++) {
+		const combo = hands[index];
+		const cWeights = [];
+		for (let adex = 0; adex < ACTIONS.length; adex++) {
+			cWeights.push(weights[index + adex * hands.length]);
+		}
+		combos[combo] = cWeights;
+	}
+
+	// Clear the grid and generate new cells
+	refreshGrid();
 }
 
 refreshGrid();

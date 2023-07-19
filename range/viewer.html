@@ -5,61 +5,7 @@
 	<meta charset="UTF-8">
 	<title>PokerOffice / Range viewer</title>
 	<link rel="stylesheet" href="/style.css">
-	<style>
-		.square {
-			display: flex;
-			width: 55px;
-			height: 55px;
-			background-color: #aaa;
-		}
-
-		.content {
-			position: absolute;
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			font-size: 18px;
-			color: #fff;
-			padding: 5px;
-		}
-
-		#grid, .no-select {
-			user-select: none;
-		}
-
-		#suitednessTable {
-			width: 70%;
-		}
-
-		#suitednessTable td {
-			text-align: center;
-			font-size: 28px;
-			cursor: pointer;
-			padding: 7px;
-			user-select: none;
-		}
-
-		#suitednessTable td.active {
-			background-color: cyan;
-		}
-
-		.expandable-box {
-			position: relative;
-		}
-
-		.expand-button {
-			cursor: pointer;
-			font-style: italic;
-		}
-
-		.default-input {
-			display: none;
-			background-color: navy;
-			margin-left: 20px;
-			padding: 0.1px 10px;
-		}
-
-	</style>
+	<link rel="stylesheet" href="./viewer.css">
 </head>
 
 <body>
@@ -111,50 +57,6 @@
 		} else {
 			elem.style.display = "block";
 		}
-	}
-
-	function updateGrid() {
-		// Parse lines
-		const lines = document.getElementById("inputArea").value.split('\n');
-		if (lines.length !== 3) {
-			alert("Invalid input. Please enter exactly three lines of JSON.");
-			return;
-		}
-
-		// Parse hands and weights as arrays
-		let actions, hands, weights;
-		try {
-			actions = parseActions(JSON.parse(lines[0]));
-			hands = JSON.parse(lines[1]);
-			weights = JSON.parse(lines[2]);
-		} catch (error) {
-			alert(
-				"Invalid input. Please enter 3 valid JSON lines.\n\n"
-				+ "Error detail:\n" + error
-				);
-			return;
-		}
-
-		// Validate the input
-		if (!Array.isArray(hands) || !Array.isArray(weights) || hands.length * actions.length !== weights.length) {
-			alert("Invalid input. Please enter valid hands and weights lists.");
-			return;
-		}
-
-		// Update constants
-		ACTIONS = actions;
-		combos = {};
-		for (let index = 0; index < hands.length; index++) {
-			const combo = hands[index];
-			const cWeights = [];
-			for (let adex = 0; adex < ACTIONS.length; adex++) {
-				cWeights.push(weights[index + adex * hands.length]);
-			}
-			combos[combo] = cWeights;
-		}
-
-		// Clear the grid and generate new cells
-		refreshGrid();
 	}
 
 	// Restore the values of textareas from localStorage if available

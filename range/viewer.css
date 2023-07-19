@@ -1,0 +1,52 @@
+.square {
+	display: flex;
+	width: 55px;
+	height: 55px;
+	background-color: #aaa;
+}
+
+.content {
+	position: absolute;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 18px;
+	color: #fff;
+	padding: 5px;
+}
+
+#grid, .no-select {
+	user-select: none;
+}
+
+#suitednessTable {
+	width: 70%;
+}
+
+#suitednessTable td {
+	text-align: center;
+	font-size: 28px;
+	cursor: pointer;
+	padding: 7px;
+	user-select: none;
+}
+
+#suitednessTable td.active {
+	background-color: cyan;
+}
+
+.expandable-box {
+	position: relative;
+}
+
+.expand-button {
+	cursor: pointer;
+	font-style: italic;
+}
+
+.default-input {
+	display: none;
+	background-color: navy;
+	margin-left: 20px;
+	padding: 0.1px 10px;
+}
