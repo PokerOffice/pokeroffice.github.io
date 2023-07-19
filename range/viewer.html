@@ -23,7 +23,7 @@
 			padding: 5px;
 		}
 
-		#grid {
+		#grid, .no-select {
 			user-select: none;
 		}
 
@@ -73,9 +73,15 @@
 
 		<!-- User parameters -->
 		<div id="userInput">
-			<p style="margin: 10px 0 2px;">Hands:</p>
+			<p style="margin: 10px 0 2px;">
+			Hands
+
+			<span class="expand-button no-select" onclick="toggleExpand('handsInput')">
+				<img src="/img/help.png" width="20">Syntax
+			</span>
+		</p>
 			<div class="expandable-box">
-				<div class="expand-button" onclick="toggleExpand('handsInput')">[?] How to input</div>
+				
 				<div id="handsInput" class="default-input">
 					<p>Default input:</p>
 					<p>AA, KK, AKs, 99</p>
@@ -88,9 +94,9 @@
 
 			<hr>
 
-			<p style="margin-bottom: 2px;">Suitedness:</p>
-			<table id="suitednessTable">
-			</table>
+			<!-- Suit control tool -->
+			<p style="margin-bottom: 2px;">Suitedness</p>
+			<table id="suitednessTable"></table>
 		</div>
 	</div>
 </body>
