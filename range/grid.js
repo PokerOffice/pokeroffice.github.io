@@ -1,12 +1,12 @@
 const grid = document.getElementById("grid");
 const RANKS = ["A", "K", "Q", "J", "T", "9", "8", "7", "6", "5", "4", "3", "2"];
 
-const SUITS = [
-	{"raw": "s", "symbol": "&spades;", "color": "black"},
-	{"raw": "h", "symbol": "&hearts;", "color": "red"},
-	{"raw": "d", "symbol": "&diams;", "color": "blue"},
-	{"raw": "c", "symbol": "&clubs;", "color": "darkGreen"},
-];
+const SUITS = {
+	"s": { "raw": "s", "symbol": "♠", "color": "black" },
+	"h": { "raw": "h", "symbol": "♥", "color": "red" },
+	"d": { "raw": "d", "symbol": "♦", "color": "blue" },
+	"c": { "raw": "c", "symbol": "♣", "color": "darkGreen" }
+};
 
 var ACTIONS = [];
 var combos = {};
@@ -33,9 +33,9 @@ function formatSuit(suit) {
 function initSuitedness() {
 	// Build HTML
 	const suitednessTable = document.getElementById("suitednessTable");
-	for (let suit1 of SUITS) {
+	for (let suit1 of Object.values(SUITS)) {
 		const row = document.createElement("tr");
-		for (let suit2 of SUITS) {
+		for (let suit2 of Object.values(SUITS)) {
 			const td = document.createElement("td");
 			const suitCombination = suit1.raw + suit2.raw;
 			td.id = "suitCombination-" + suitCombination;
@@ -144,7 +144,7 @@ function parseActions(raws) {
 
 function formatBoard(raw) {
 	return raw.split(',')
-		.map(card => `<span class="card-${card[1]}">${card}</span>`)
+		.map(card => `<span class="card-${card[1]}">${card[0]}${SUITS[card[1]].symbol}</span>`)
 		.join(' ');
 }
 
