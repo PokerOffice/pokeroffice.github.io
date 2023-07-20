@@ -54,6 +54,30 @@ function initSuitedness() {
 	for (let suit of ["ss", "hh", "dd", "cc"]) toggleSuitedness(suit);
 }
 
+function updateActions(actions) {
+	ACTIONS = actions;
+
+	const elem = document.getElementById("actionsViewer");
+	if (elem !== null) {
+		const table = document.createElement("table");
+		for (let action of ACTIONS) {
+			let tr = document.createElement("tr")
+
+			let tdColor = document.createElement("td")
+			tdColor.width = "20px";
+			tdColor.style.backgroundColor = action.color;
+			tr.appendChild(tdColor);
+
+			let tdLabel = document.createElement("td")
+			tdLabel.appendChild(document.createTextNode(action.id));
+			tr.appendChild(tdLabel);
+
+			table.appendChild(tr);
+		}
+		elem.appendChild(table);
+	}
+}
+
 function generateCell(name) {
 	let cell = document.createElement("td");
 	cell.id = name;
@@ -263,7 +287,7 @@ function updateGrid() {
 
 	// Update game variables
 	document.getElementById("titleBoard").innerHTML = ' - ' + board;
-	ACTIONS = actions;
+	updateActions(actions);
 	combos = {};
 	for (let index = 0; index < hands.length; index++) {
 		const combo = hands[index];
