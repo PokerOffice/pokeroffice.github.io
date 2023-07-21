@@ -8,74 +8,82 @@ const SUITS = {
 	"c": { "raw": "c", "symbol": "♣", "color": "darkGreen" }
 };
 
-var ACTIONS = [];
-var combos = {};
-var suitedness = new Set();
+const Game = {
+	actions: [],
+	comboWeights: {},  // {"AdAh": [0.1, 0.2, 0.3, 0.4]}
+	suitedness: new Set(),
 
-function toggleSuitedness(suitCombination) {
-	const td = document.getElementById("suitCombination-" + suitCombination);
+	setActions(actions) {
+		this.actions = actions;
 
-	if (suitedness.has(suitCombination)) {
-		suitedness.delete(suitCombination);
-		td.style.backgroundColor = "white";
-	} else {
-		suitedness.add(suitCombination);
-		td.style.backgroundColor = "cyan";
-	}
+		const elem = document.getElementById("actionsViewer");
+		if (elem !== null) {
+			const table = document.createElement("table");
+			for (let action of this.actions) {
+				let tr = document.createElement("tr")
 
-	refreshGrid();
+				let tdColor = document.createElement("td")
+				tdColor.width = "20px";
+				tdColor.style.backgroundColor = action.color;
+				tr.appendChild(tdColor);
+
+				let tdLabel = document.createElement("td")
+				tdLabel.appendChild(document.createTextNode(action.id));
+				tr.appendChild(tdLabel);
+
+				table.appendChild(tr);
+			}
+			elem.appendChild(table);
+		}
+	},
+
+	resetComboWeights() {this.comboWeights = {}},
+
+	setComboWeights (combo, weights) {this.comboWeights[combo] = weights},
+
+	toggleSuitedness(suitCombination) {
+		const td = document.getElementById("suitCombination-" + suitCombination);
+
+		if (this.suitedness.has(suitCombination)) {
+			this.suitedness.delete(suitCombination);
+			td.style.backgroundColor = "white";
+		} else {
+			this.suitedness.add(suitCombination);
+			td.style.backgroundColor = "cyan";
+		}
+
+		refreshGrid();
+	},
+
+	initSuitedness() {
+		const game = this;
+
+		// Build HTML
+		const suitednessTable = document.getElementById("suitednessTable");
+		for (let suit1 of Object.values(SUITS)) {
+			const row = document.createElement("tr");
+			for (let suit2 of Object.values(SUITS)) {
+				const td = document.createElement("td");
+				const suitCombination = suit1.raw + suit2.raw;
+				td.id = "suitCombination-" + suitCombination;
+				td.innerHTML = `${formatSuit(suit1)}${formatSuit(suit2)}`;
+				td.style.backgroundColor = "white";
+				td.style.cursor = "pointer";
+				td.addEventListener("click", function () {
+					game.toggleSuitedness(suitCombination);
+				});
+				row.appendChild(td);
+			}
+			suitednessTable.appendChild(row);
+		}
+
+		// Init
+		for (let suit of ["ss", "hh", "dd", "cc"]) game.toggleSuitedness(suit);
+	},
 }
 
 function formatSuit(suit) {
 	return `<span style="color: ${suit.color}">${suit.symbol}</span>`
-}
-
-function initSuitedness() {
-	// Build HTML
-	const suitednessTable = document.getElementById("suitednessTable");
-	for (let suit1 of Object.values(SUITS)) {
-		const row = document.createElement("tr");
-		for (let suit2 of Object.values(SUITS)) {
-			const td = document.createElement("td");
-			const suitCombination = suit1.raw + suit2.raw;
-			td.id = "suitCombination-" + suitCombination;
-			td.innerHTML = `${formatSuit(suit1)}${formatSuit(suit2)}`;
-			td.style.backgroundColor = "white";
-			td.style.cursor = "pointer";
-			td.addEventListener("click", function () {
-				toggleSuitedness(suitCombination);
-			});
-			row.appendChild(td);
-		}
-		suitednessTable.appendChild(row);
-	}
-
-	// Init
-	for (let suit of ["ss", "hh", "dd", "cc"]) toggleSuitedness(suit);
-}
-
-function updateActions(actions) {
-	ACTIONS = actions;
-
-	const elem = document.getElementById("actionsViewer");
-	if (elem !== null) {
-		const table = document.createElement("table");
-		for (let action of ACTIONS) {
-			let tr = document.createElement("tr")
-
-			let tdColor = document.createElement("td")
-			tdColor.width = "20px";
-			tdColor.style.backgroundColor = action.color;
-			tr.appendChild(tdColor);
-
-			let tdLabel = document.createElement("td")
-			tdLabel.appendChild(document.createTextNode(action.id));
-			tr.appendChild(tdLabel);
-
-			table.appendChild(tr);
-		}
-		elem.appendChild(table);
-	}
 }
 
 function generateCell(name) {
@@ -92,8 +100,8 @@ function generateCell(name) {
 	square.appendChild(content);
 
 	// Areas
-	for (let index = 0; index < ACTIONS.length; index++) {
-		let action = ACTIONS[index];
+	for (let index = 0; index < Game.actions.length; index++) {
+		let action = Game.actions[index];
 		let area = document.createElement("div");
 		area.id = "grid-" + name + "-" + index;
 		area.style.backgroundColor = action.color;
@@ -175,7 +183,7 @@ function formatBoard(raw) {
 
 /**
  * Convert a combo to its generic token.
- * Use global variable suitedness for the suffix, even for pairs.
+ * Use Game.suitedness for the suffix, even for pairs.
  *
  * Examples:
  * getToken("JhTh"); // JTs
@@ -194,7 +202,7 @@ function getToken(combo) {
 		[suit1, suit2] = [suit2, suit1];
 	}
 
-	const suited = (suitedness.has(suit1 + suit2)) ? "s" : "o";
+	const suited = (Game.suitedness.has(suit1 + suit2)) ? "s" : "o";
 	return rank1 + rank2 + suited;
 }
 
@@ -202,7 +210,7 @@ function getAllTokens() {
 	const tokens = {};
 
 	// Regroup weights
-	for (let [combo, weights] of Object.entries(combos)) {
+	for (let [combo, weights] of Object.entries(Game.comboWeights)) {
 		const token = getToken(combo);
 		const weightLists = tokens[token] || [];
 		for (let i = 0; i < weights.length; i++) {
@@ -287,15 +295,16 @@ function updateGrid() {
 
 	// Update game variables
 	document.getElementById("titleBoard").innerHTML = ' - ' + board;
-	updateActions(actions);
-	combos = {};
+	Game.setActions(actions);
+	Game.resetComboWeights();
+
 	for (let index = 0; index < hands.length; index++) {
 		const combo = hands[index];
 		const cWeights = [];
-		for (let adex = 0; adex < ACTIONS.length; adex++) {
+		for (let adex = 0; adex < Game.actions.length; adex++) {
 			cWeights.push(weights[index + adex * hands.length]);
 		}
-		combos[combo] = cWeights;
+		Game.setComboWeights(combo, cWeights);
 	}
 
 	// Clear the grid and generate new cells
@@ -303,4 +312,4 @@ function updateGrid() {
 }
 
 refreshGrid();
-initSuitedness();
+Game.initSuitedness();
