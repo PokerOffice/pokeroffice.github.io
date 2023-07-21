@@ -5,6 +5,10 @@
 	background-color: #aaa;
 }
 
+.vertical-bar {
+	border-left: 2px solid white;
+}
+
 .content {
 	position: absolute;
 	display: flex;
