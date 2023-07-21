@@ -10,6 +10,7 @@ const SUITS = {
 
 const Game = {
 	actions: [],
+	tokenCombos: {},  // {"A3s": Set(3) {'Ac3c', 'Ad3d', 'As3s'}}
 	comboWeights: {},  // {"AdAh": [0.1, 0.2, 0.3, 0.4]}
 	suitedness: new Set(),
 
@@ -22,10 +23,7 @@ const Game = {
 			for (let action of this.actions) {
 				let tr = document.createElement("tr")
 
-				let tdColor = document.createElement("td")
-				tdColor.width = "20px";
-				tdColor.style.backgroundColor = action.color;
-				tr.appendChild(tdColor);
+				tr.appendChild(generateActionCell(action));
 
 				let tdLabel = document.createElement("td")
 				tdLabel.appendChild(document.createTextNode(action.id));
@@ -37,7 +35,23 @@ const Game = {
 		}
 	},
 
-	resetComboWeights() {this.comboWeights = {}},
+	resetCombos() {
+		this.tokenCombos = {};
+		this.comboWeights = {};
+	},
+
+	addCombo(combo) {
+		const token = getToken(combo);
+		if (this.tokenCombos[token] === undefined) {
+			this.tokenCombos[token] = new Set();
+		}
+		this.tokenCombos[token].add(combo);
+	},
+
+	refreshTokenCombos() {
+		this.tokenCombos = {};
+		for (combo in this.comboWeights) this.addCombo(combo);
+	},
 
 	setComboWeights (combo, weights) {this.comboWeights[combo] = weights},
 
@@ -52,6 +66,7 @@ const Game = {
 			td.style.backgroundColor = "cyan";
 		}
 
+		this.refreshTokenCombos();
 		refreshGrid();
 	},
 
@@ -89,6 +104,10 @@ function formatSuit(suit) {
 function generateCell(name) {
 	let cell = document.createElement("td");
 	cell.id = name;
+	cell.addEventListener("mouseenter", function () {
+		fillCombosHovered(Game.tokenCombos[name]);
+	});
+
 	let square = document.createElement("div");
 	square.className = "square";
 	cell.appendChild(square);
@@ -112,6 +131,40 @@ function generateCell(name) {
 	return cell;
 }
 
+function generateActionCell (action) {
+	let tdColor = document.createElement("td")
+	tdColor.width = "20px";
+	tdColor.style.backgroundColor = action.color;
+	return tdColor;
+}
+
+function fillCombosHovered(combos) {
+	const container = document.getElementById("combosHovered");
+	if (container !== null) {
+		container.innerHTML = "";
+		if (!combos) {
+			return
+		}
+
+		const table = document.createElement("table");
+		for (combo of combos.keys()) {
+			const weights = Game.comboWeights[combo];
+
+			const row = document.createElement("tr");
+			table.appendChild(row);
+			row.innerHTML += (`<td>${formatCombo(combo)}</td>`);
+
+			for (let index = 0; index < Game.actions.length; index++) {
+				const action = Game.actions[index];
+				const weight = weights[index];
+
+				row.appendChild(generateActionCell(action));
+				row.innerHTML += (`<td>${weight}</td>`);
+			}
+		}
+		container.appendChild(table);
+	}
+}
 
 function toHex(value) {
 	return value.toString(16).padStart(2, '0');
@@ -174,9 +227,22 @@ function parseActions(raws) {
 	return actions;
 }
 
+function formatCard(card) {
+	return `<span class="card-${card[1]}">${card[0]}${SUITS[card[1]].symbol}</span>`;
+}
+
+function formatCombo(combo) {
+    const cards = [];
+    for (let i = 0; i < combo.length; i += 2) {
+        const card = combo.slice(i, i + 2);
+        cards.push(formatCard(card));
+    }
+    return cards.join('');
+}
+
 function formatBoard(raw) {
 	return raw.split(',')
-		.map(card => `<span class="card-${card[1]}">${card[0]}${SUITS[card[1]].symbol}</span>`)
+		.map(formatCard)
 		.join(' ');
 }
 
@@ -296,7 +362,7 @@ function updateGrid() {
 	// Update game variables
 	document.getElementById("titleBoard").innerHTML = ' - ' + board;
 	Game.setActions(actions);
-	Game.resetComboWeights();
+	Game.resetCombos();
 
 	for (let index = 0; index < hands.length; index++) {
 		const combo = hands[index];
@@ -308,6 +374,7 @@ function updateGrid() {
 	}
 
 	// Clear the grid and generate new cells
+	Game.refreshTokenCombos();
 	refreshGrid();
 }
 
