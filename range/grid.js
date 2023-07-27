@@ -19,6 +19,7 @@ const Game = {
 
 		const elem = document.getElementById("actionsViewer");
 		if (elem !== null) {
+			elem.innerHTML = "";
 			const table = document.createElement("table");
 			for (let action of this.actions) {
 				let tr = document.createElement("tr")
