@@ -133,6 +133,24 @@ const Game = {
 		// Init
 		for (let suit of ["ss", "hh", "dd", "cc"]) game.toggleSuitedness(suit);
 	},
+
+	populateLockInputs() {
+	    const lockInputs = document.getElementById("lockInputs");
+	    lockInputs.innerHTML = "";
+	    for (let action of this.actions) {
+	        lockInputs.appendChild(generateActionCell(action));
+	        let td = document.createElement("td");
+	        let input = document.createElement("input");
+	        input.type = "number";
+	        input.style.width = "50px";
+	        input.step = "0.05";
+	        input.min = 0;
+	        input.max = 1;
+	        input.value = 0;
+	        td.appendChild(input);
+	        lockInputs.appendChild(td);
+	    }
+	},
 }
 
 function formatSuit(suit) {
@@ -344,6 +362,22 @@ function getAllTokens() {
 	return tokens;
 }
 
+function lockCombos() {
+    const lockInputs = document.getElementById("lockInputs").querySelectorAll("input");
+    const lockValues = [];
+    for (let input of lockInputs) {
+        lockValues.push(parseFloat(input.value));
+    }
+
+    for (let combo of Game.selectedCombos) {
+        Game.setComboWeights(combo, lockValues);
+    }
+
+    // Update the grid and selected combos table
+    refreshCombos();
+    Game.resetSelectedCombos();
+}
+
 function refreshCombos() {
 	// Update grid
 	for (let [token, weights] of Object.entries(getAllTokens())) {
@@ -423,6 +457,7 @@ function updateGrid() {
 	// Clear the grid and generate new cells
 	Game.refreshTokenCombos();
 	refreshGrid();
+	Game.populateLockInputs();
 }
 
 refreshGrid();

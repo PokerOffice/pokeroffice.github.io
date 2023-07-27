@@ -61,6 +61,15 @@
 					Combo Selector
 					<button onclick="Game.resetSelectedCombos()">Reset</button>
 				</p>
+
+        <div id="lockCombosArea">
+            <p>Lock Combos: <button onclick="lockCombos()">Lock</button></p>
+            <table id="lockInputs">
+                <!-- Generate float inputs for each action -->
+                <!-- The inputs will be populated dynamically based on Game.actions -->
+            </table>
+        </div>
+
 				<table id="combosSelectedTable"></table>
 			</div>
 		</div>
