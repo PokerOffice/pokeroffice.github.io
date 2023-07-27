@@ -12,6 +12,7 @@ const Game = {
 	actions: [],
 	tokenCombos: {},  // {"A3s": Set(3) {'Ac3c', 'Ad3d', 'As3s'}}
 	comboWeights: {},  // {"AdAh": [0.1, 0.2, 0.3, 0.4]}
+	selectedCombos: new Set(),
 	suitedness: new Set(),
 
 	setActions(actions) {
@@ -39,6 +40,15 @@ const Game = {
 	resetCombos() {
 		this.tokenCombos = {};
 		this.comboWeights = {};
+		this.resetSelectedCombos();
+	},
+
+	resetSelectedCombos() {
+		this.selectedCombos.clear();
+		const table = document.getElementById("combosSelectedTable");
+		if (table !== null) {
+			table.innerHTML = "";
+		}
 	},
 
 	addCombo(combo) {
@@ -55,6 +65,33 @@ const Game = {
 	},
 
 	setComboWeights (combo, weights) {this.comboWeights[combo] = weights},
+
+	selectCombos(combos) {
+		if (!combos) {
+			return
+		}
+
+		combos.forEach(item => this.selectedCombos.add(item));
+		const table = document.getElementById("combosSelectedTable");
+		if (table !== null) {
+			table.innerHTML = "";
+			for (combo of this.selectedCombos.keys()) {
+				const weights = Game.comboWeights[combo];
+
+				const row = document.createElement("tr");
+				table.appendChild(row);
+				row.innerHTML += (`<td>${formatCombo(combo)}</td>`);
+
+				for (let index = 0; index < Game.actions.length; index++) {
+					const action = Game.actions[index];
+					const weight = weights[index];
+
+					row.appendChild(generateActionCell(action));
+					row.innerHTML += (`<td>${weight}</td>`);
+				}
+			}
+		}
+	},
 
 	toggleSuitedness(suitCombination) {
 		const td = document.getElementById("suitCombination-" + suitCombination);
@@ -103,10 +140,19 @@ function formatSuit(suit) {
 }
 
 function generateCell(name) {
+	const combos = Game.tokenCombos[name];
 	let cell = document.createElement("td");
 	cell.id = name;
-	cell.addEventListener("mouseenter", function () {
-		fillCombosHovered(Game.tokenCombos[name]);
+	cell.addEventListener("mouseenter", function (event) {
+		fillCombosHovered(combos);
+		if (event.buttons & 1) {
+			Game.selectCombos(combos);
+		}
+	});
+	cell.addEventListener("mousedown", function (event) {
+		if (event.buttons & 1) {
+			Game.selectCombos(combos);
+		}
 	});
 
 	let square = document.createElement("div");
