@@ -66,6 +66,17 @@ const Game = {
 
 	setComboWeights (combo, weights) {this.comboWeights[combo] = weights},
 
+	exportWeights() {
+		const result = [];
+		for (let index = 0; index < Game.actions.length; index++) {
+			console.log(this.comboWeights);
+			for (combo in this.comboWeights) {
+				result.push(this.comboWeights[combo][index]);
+			}
+		}
+		return result;
+	},
+
 	selectCombos(combos) {
 		if (!combos) {
 			return

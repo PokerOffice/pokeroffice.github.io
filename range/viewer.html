@@ -42,6 +42,11 @@
 			<!-- Suit control tool -->
 			<p style="margin-bottom: 2px;">Suitedness</p>
 			<table id="suitednessTable"></table>
+
+			<hr>
+
+			<p><button onclick="fillExportedWeights()">Export weights</button></p>
+			<p id="exportedWeights" style="width: 300px; word-wrap: break-word;">[]</p>
 		</div>
 
 		<div class="vertical-bar"></div>
@@ -87,6 +92,10 @@
 		} else {
 			elem.style.display = "block";
 		}
+	}
+
+	function fillExportedWeights() {
+		document.getElementById("exportedWeights").innerHTML = String(Game.exportWeights());
 	}
 
 	// Restore the values of textareas from localStorage if available
