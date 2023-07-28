@@ -279,8 +279,12 @@ function getRed(value) {
 	return `#${toHex(red)}${toHex(green)}${toHex(blue)}`;
 }
 
+function isBet(action) {
+	return action.startsWith("Bet(") | action.startsWith("Raise(")
+}
+
 function parseActions(raws) {
-	const nbBets = raws.filter(action => action.startsWith("Bet(")).length;
+	const nbBets = raws.filter(isBet).length;
 	let counterBets = nbBets;
 	const actions = [];
 
@@ -289,9 +293,11 @@ function parseActions(raws) {
 		let color = "gray";
 		if (["Check", "Call"].includes(action)) {
 			color = "green";
+		} else if (action.startsWith("Fold")) {
+			color = "dodgerBlue";
 		} else if (action.startsWith("AllIn(")) {
 			color = "purple";
-		} else if (action.startsWith("Bet(")) {
+		} else if (isBet(action)) {
 			counterBets--;
 			color = getRed(counterBets / nbBets);
 		}
