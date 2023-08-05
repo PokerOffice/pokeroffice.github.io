@@ -69,9 +69,8 @@ const Game = {
 	exportWeights() {
 		const result = [];
 		for (let index = 0; index < Game.actions.length; index++) {
-			console.log(this.comboWeights);
 			for (combo in this.comboWeights) {
-				result.push(this.comboWeights[combo][index]);
+				result.push(this.comboWeights[combo][index].toFixed(3));
 			}
 		}
 		return result;
