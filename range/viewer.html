@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title>PokerOffice / Range viewer</title>
+	<link rel="stylesheet" href="/style.css">
+	<link rel="stylesheet" href="./viewer.css">
+</head>
+
+<body>
+	<h1>Strategy editor <span id="titleBoard"></span></h1>
+	<a href="/index.html">Back to menu</a>
+
+	<div id="gridContainer" style="display: flex; flex-direction: row; gap: 20px; margin-top: 20px;">
+		<!-- Holes matrix -->
+		<div id="gridWrapper">
+			<table id="grid"></table>
+		</div>
+
+		<!-- User parameters -->
+		<div id="userInput">
+			<p style="margin: 10px 0 2px;">
+				Actions and range
+				<span class="expand-button no-select" onclick="toggleExpand('handsInput')">
+					<img src="/img/help.png" width="20">Syntax
+				</span>
+			</p>
+			<div class="expandable-box">
+				
+				<div id="handsInput" class="default-input">
+					<p>4 lines of <i>Board</i>, <i>Actions</i>, <i>Hands</i>, <i>Weights</i></p>
+					<p>Example: Cbet strategy SB vs BB</p>
+					<iframe class="codeblock" src="./sampleInput.html" height="110px"></iframe>
+				</div>
+			</div>
+			<textarea id="inputArea" rows="4" cols="40" placeholder="Enter input"></textarea>
+			<p><button onclick="updateGrid()">Update Grid</button></p>
+
+			<hr>
+
+			<!-- Suit control tool -->
+			<p style="margin-bottom: 2px;">Suitedness</p>
+			<table id="suitednessTable"></table>
+
+			<hr>
+
+			<p><button onclick="fillExportedWeights()">Export weights</button></p>
+			<p id="exportedWeights" style="width: 300px; word-wrap: break-word;">[]</p>
+		</div>
+
+		<div class="vertical-bar"></div>
+
+		<!-- Combo viewer -->
+		<div id="comboViewer">
+			<div id="actionsViewer"></div>
+
+			<hr>
+
+			<div id="combosHovered"></div>
+
+			<hr>
+
+			<div id="combosSelector">
+				<p>
+					Combo Selector
+					<button onclick="Game.resetSelectedCombos()">Reset</button>
+				</p>
+
+        <div id="lockCombosArea">
+            <p>Lock Combos: <button onclick="lockCombos()">Lock</button></p>
+            <table id="lockInputs">
+                <!-- Generate float inputs for each action -->
+                <!-- The inputs will be populated dynamically based on Game.actions -->
+            </table>
+        </div>
+
+				<table id="combosSelectedTable"></table>
+			</div>
+		</div>
+	</div>
+</body>
+
+<script src="grid.js"></script>
+<script>
+	function toggleExpand(divId) {
+		const elem = document.getElementById(divId);
+		const style = getComputedStyle(elem);
+
+		if (style.display === "block") {
+			elem.style.display = "none";
+		} else {
+			elem.style.display = "block";
+		}
+	}
+
+	function fillExportedWeights() {
+		document.getElementById("exportedWeights").innerHTML = String(Game.exportWeights());
+	}
+
+	// Restore the values of textareas from localStorage if available
+	document.getElementById("inputArea").value = localStorage.getItem("inputArea");
+
+	// Save the values of textareas to localStorage on change
+	document.getElementById("inputArea").addEventListener("input", function() {
+		localStorage.setItem("inputArea", this.value);
+	});
+</script>
+</html>
