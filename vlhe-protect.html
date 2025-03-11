@@ -1,0 +1,144 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>PokerOffice / VLHE</title>
+    <link rel="stylesheet" type="text/css" href="/style.css">
+    <style>
+      body {
+        font-size: 24px;
+      }
+      .slider input[type="range"] {
+        width: 50%;
+        max-width: 400px;
+        background-color: lightgray;
+      }
+
+      .board-button {
+        font-size: 24px;
+        margin: 5px;
+        padding: 10px;
+        border: 1px solid black;
+        cursor: pointer;
+        background-color: white;
+      }
+
+      .ev-color {
+        display: inline-block;
+        width: 70px;
+        height: 10px;
+        margin-left: auto;
+      }
+      .ev-diff {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+    </style>
+  </head>
+    <script src="https://cdn.jsdelivr.net/gh/nicolaspanel/numjs@0.15.1/dist/numjs.min.js"></script>
+    <script src="/poker.js"></script>
+    <script>
+        const boards = {
+            "A♣Q♦6♥": ["5♠2♠", "T♥8♥", "J♠8♠", "J♥J♣", "Q♥4♠", "Q♠J♠", "8♦6♦", "2♥2♠", "7♦7♣"],
+            "K♥K♣Q♠": ["5♥4♦", "6♣5♣", "8♠6♦", "J♣J♦", "Q♦2♦"],
+            "T♣T♠T♦": ["A♥K♥", "Q♠J♠", "9♦8♦", "J♣T♣", "7♥6♥", "5♠4♠"],
+            "J♠8♥6♥": ["K♦Q♦", "A♠J♠", "9♥7♥", "T♣8♣", "6♦5♦", "4♠4♥"],
+            "8♦7♠2♥": ["Q♠T♠", "J♣9♣", "A♥8♥", "5♦4♦", "7♣6♣", "3♠3♣"],
+        };
+
+        function getRandomStat() {
+            return (Math.random() * 100).toFixed(2);
+        }
+
+        function getNoisyStat(base) {
+            return (parseFloat(base) + (Math.random() * 10 - 5)).toFixed(2);
+        }
+
+        function updateTable(selectedBoard) {
+            const callingRange = document.getElementById("callingRange");
+            const allHands = boards[selectedBoard] || [];
+            const randomHands = allHands.sort(() => 0.5 - Math.random()).slice(0, 5);
+            callingRange.innerHTML = colorizeCards(randomHands.join(", "));
+
+            const tableBody = document.getElementById("statsBody");
+            const boardDisplay = document.getElementById("boardDisplay");
+            const pFoldValue = document.getElementById("pFoldSlider").value;
+            document.getElementById("pFoldValue").textContent = pFoldValue;
+            
+            tableBody.innerHTML = "";
+            boardDisplay.innerHTML = selectedBoard ? colorizeCards(selectedBoard) : "";
+            
+            if (!selectedBoard) return;
+            
+            boards[selectedBoard].forEach(combo => {
+                const evDiff = (Math.random() * 200 - 100).toFixed(2);
+                const color = getGradientColor(evDiff);
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${colorizeCards(combo)}</td>
+                    <td>${getNoisyStat(pFoldValue)}%</td>
+                    <td>${getRandomStat()}%</td>
+                    <td>${getRandomStat()}%</td>
+                    <td>${getRandomStat()}%</td>
+                    <td class="ev-diff">
+                        <span style="color: ${color};">${evDiff}</span>
+                        <span class="ev-color" style="background-color: ${color};"></span>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function populateBoardButtons() {
+            const boardButtons = document.getElementById("boardButtons");
+            boardButtons.innerHTML = "";
+            
+            for (let board in boards) {
+                let button = document.createElement("button");
+                button.className = "board-button";
+                button.innerHTML = colorizeCards(board);
+                button.onclick = () => updateTable(board);
+                boardButtons.appendChild(button);
+            }
+        }
+
+        window.onload = function() {
+            populateBoardButtons();
+            const firstBoard = Object.keys(boards)[0];
+            if (firstBoard) {
+                updateTable(firstBoard);
+            }
+        };
+    </script>
+
+<body>
+    <h1>VLHE : Bet or Check ?</h1>
+    <p><a href="/index.html">Back to menu</a></p>
+    <div id="boardButtons"></div>
+    
+    <h2><span id="boardDisplay"></span></h2>
+    
+    <p>
+        p<sub>fold</sub>
+        <input type="range" id="pFoldSlider" min="0" max="100" value="50" step="0.1" style="width: 400px;" oninput="updateTable(document.getElementById('boardDisplay').textContent)">
+        <span id="pFoldValue">50</span>%
+    </p>
+
+    <p>Calling range BB: <span id="callingRange"></span></p>
+    
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Hand</th>
+                <th>p<sub>fold</sub></th>
+                <th>EQ</th>
+                <th>EQ<sub>call</sub></th>
+                <th>EQ<sub>fold</sub></th>
+                <th>EV(bet) - EV(check)</th>
+            </tr>
+        </thead>
+        <tbody id="statsBody"></tbody>
+    </table>
+
+</body>
+</html>

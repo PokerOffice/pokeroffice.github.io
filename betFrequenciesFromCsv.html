@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PokerOffice</title>
+    <link rel="stylesheet" type="text/css" href="/style.css">
+    <script src="/poker.js"></script>
+    <style>
+        table {
+            width: 50%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 3px;
+            text-align: left;
+            cursor: pointer;
+        }
+        .bar-container {
+            display: flex;
+            width: 100%;
+            height: 20px;
+        }
+        .bar {
+            height: 100%;
+        }
+        .bar-bet { background-color: red; }
+        .bar-fold { background-color: blue; }
+        .bar-call, .bar-check { background-color: green; }
+        .sorted-asc::after { content: " ▲"; }
+        .sorted-desc::after { content: " ▼"; }
+    </style>
+</head>
+<body>
+
+    <h1>Bet Frequencies from CSV</h1>
+    <p><a href="/index.html">Back to menu</a></p>
+
+    <table id="dataTable"></table>
+
+    <script>
+        let currentSortColumn = null;
+        let sortAscending = true;
+
+        function createBarChart(frequencies, labels) {
+            const container = document.createElement("div");
+            container.className = "bar-container";
+
+            frequencies.forEach((freq, index) => {
+                if (freq > 0) {
+                    const bar = document.createElement("div");
+                    bar.className = `bar bar-${labels[index].toLowerCase()}`;
+                    bar.style.width = freq + "%";
+                    container.appendChild(bar);
+                }
+            });
+
+            return container;
+        }
+
+        function sortTable(columnIndex) {
+            const table = document.getElementById("dataTable");
+            let rows = Array.from(table.rows).slice(1);
+            const isNumeric = !isNaN(parseFloat(rows[0].cells[columnIndex].textContent));
+            
+            sortAscending = currentSortColumn === columnIndex ? !sortAscending : true;
+            currentSortColumn = columnIndex;
+            
+            const sortedRows = rows.sort((rowA, rowB) => {
+                let cellA = rowA.cells[columnIndex].textContent.trim();
+                let cellB = rowB.cells[columnIndex].textContent.trim();
+                let comparison = isNumeric ? parseFloat(cellA) - parseFloat(cellB) : cellA.localeCompare(cellB);
+                return sortAscending ? comparison : -comparison;
+            });
+            
+            sortedRows.forEach(row => table.appendChild(row));
+            updateSortIndicators(columnIndex);
+        }
+
+        function updateSortIndicators(columnIndex) {
+            document.querySelectorAll("th").forEach((th, index) => {
+                th.classList.remove("sorted-asc", "sorted-desc");
+                if (index === columnIndex) {
+                    th.classList.add(sortAscending ? "sorted-asc" : "sorted-desc");
+                }
+            });
+        }
+
+        async function loadTable() {
+            const rows = await fetchCSV('/data/data.csv');
+
+            const table = document.getElementById("dataTable");
+            table.innerHTML = ""; // Clear previous content
+
+            const headers = rows[0];
+            const freqColumns = [];
+            const labels = [];
+
+            headers.forEach((header, index) => {
+                if (header.includes("freq")) {
+                    freqColumns.push(index);
+                    const actionName = header.toLowerCase();
+                    if (actionName.includes("bet")) labels.push("bet");
+                    else if (actionName.includes("raise")) labels.push("bet");
+                    else if (actionName.includes("fold")) labels.push("fold");
+                    else if (actionName.includes("call")) labels.push("call");
+                    else if (actionName.includes("check")) labels.push("check");
+                }
+            });
+
+            // Create table header
+            const thead = document.createElement("tr");
+            headers.forEach((header, index) => {
+                let th = document.createElement("th");
+                th.textContent = index === 0 ? "Flop" : header;
+                th.onclick = () => sortTable(index);
+                thead.appendChild(th);
+            });
+
+            let freqTh = document.createElement("th");
+            freqTh.textContent = "Frequencies";
+            thead.appendChild(freqTh);
+            table.appendChild(thead);
+
+            // Create table body
+            rows.slice(1).forEach(row => {
+                let tr = document.createElement("tr");
+
+                row.forEach((cell, index) => {
+                    let td = document.createElement("td");
+                    td.innerHTML = index === 0 ? colorizeCards(cell) : cell;
+                    tr.appendChild(td);
+                });
+
+                // Merge frequencies into a single column with bar chart
+                const freqValues = freqColumns.map(i => parseFloat(row[i]) || 0);
+                let freqTd = document.createElement("td");
+                freqTd.appendChild(createBarChart(freqValues, labels));
+                tr.appendChild(freqTd);
+
+                table.appendChild(tr);
+            });
+        }
+
+        loadTable();
+    </script>
+
+</body>
+</html>
