@@ -53,3 +53,9 @@ table.padded th,
 table.padded td {
   padding: 15px;
 }
+
+
+.heart { color: red; }
+.spade { color: gray; }
+.club { color: forestgreen; }
+.diamond { color: dodgerblue; }
